@@ -88,7 +88,8 @@ export class ListColumns extends React.Component<IColumnProps, IListColumnsState
         ariaLabelForSelectAllCheckbox="Toggle selection for all items"
         checkButtonAriaLabel="Row checkbox"
       />
-      <button hidden={this.state.hideMember} onClick={()=>this.getListItems(this.props.UserPersonId)}>Visa Mina Planerade Semester</button>
+      <button hidden={this.state.hideMember} onClick={()=>this.getListItems(this.props.UserPersonId)}>Visa Mina planerade Semester</button>
+      <button hidden={this.state.hideMember} onClick={()=>this.getListItems(this.props.UserPersonId, true)}>Visa gamla semester</button>
       <button hidden={this.state.hideAdmin}  onClick={()=>this.getOfficerListItems(this.props.UserPersonId)}>Visa Personal:s Planerade Semester</button>
       {this.state.isEditTriggerd && <EditVac hideEdit={this.changeEditTriggerd}/>}
       </div> 
@@ -132,20 +133,24 @@ export class ListColumns extends React.Component<IColumnProps, IListColumnsState
     this.getOfficerListItems(this.props.UserPersonId);
   }
 
-  private getListItems = (Id: number) => {
-    const currentDate = new Date().toISOString().slice(0, 10);
+  private getListItems = (Id: number, checkOldVac?: boolean) => {
+    let currentDate = new Date().toISOString();
+    let greaterOrLess = 'ge';
+    if(checkOldVac === true)
+    {greaterOrLess = 'lt'}
     console.log('currentDate', currentDate)
     sp.web.lists.getByTitle(this._listName).items
     .select('*','Officer/Title','UserPerson/Title').expand('Officer', 'UserPerson')
-    .filter(`UserPerson eq ${Id} and VacStartDate qt ${currentDate}`)
+    .filter(`UserPerson eq ${Id} and VacStartDate ${greaterOrLess} datetime'${currentDate}'`)
     .get().then((res: IListItems[]) => { console.log('list Items', res, 'this props listcolumn', this.props.UserPersonTitle)
         this.setState(({sortedItems: res})
     )})}
     
   private getOfficerListItems = (Id?: number) => {
+    let currentDate = new Date().toISOString();
     sp.web.lists.getByTitle(this._listName).items
     .select('*','Officer/Title','UserPerson/Title').expand('Officer', 'UserPerson')
-    .filter(`Officer eq ${Id}`)
+    .filter(`Officer eq ${Id} and VacStartDate ge datetime'${currentDate}'`)
     .get().then((res: IListItems[]) => { console.log('list Items', res, 'this props listcolumn', this.props.UserPersonTitle)
           this.setState(({sortedItems: res})
     )})}
