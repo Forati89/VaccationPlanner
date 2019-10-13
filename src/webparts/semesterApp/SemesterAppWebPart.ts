@@ -35,7 +35,9 @@ export default class SemesterAppWebPart extends BaseClientSideWebPart<ISemesterA
       SemesterApp,
       {
         context: this.context,
-        userPersonID: 10
+        userPersonID: 10,
+        isAdmin: false,
+        userEmail: ''
       }
     );
 

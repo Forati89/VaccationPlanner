@@ -6,27 +6,41 @@ import { DetailsList, DetailsListLayoutMode, IColumn } from 'office-ui-fabric-re
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import IListItems from './IListItems';
 import { sp } from '@pnp/sp';
-import { PrimaryButton } from 'office-ui-fabric-react';
+import { PrimaryButton, IDropdownOption, Dropdown } from 'office-ui-fabric-react';
 import {IColumnProps} from './IColumnProps'
+import {EditVac} from './EditVac'
 
 export interface IListColumnsState {
   sortedItems: IListItems[];
   values: IListItems;
   userPerson: any[];
+  hideMember: boolean;
+  hideAdmin: boolean;
+  isEditTriggerd: boolean;
 }
 
 export class ListColumns extends React.Component<IColumnProps, IListColumnsState> {
   private _columns: IColumn[];
   private _listName: string;
+  private _options: IDropdownOption[];
   constructor(props: IColumnProps, state: IListColumnsState) {
     super(props);
 
     this.state = {
       sortedItems: [],
       values: {Id: 1, Title: '', VacStartDate: null, VacEndDate: null, UserPerson: '', Status: '', Officer: ''},
-      userPerson: []
+      userPerson: [],
+      hideAdmin: true,
+      hideMember: false,
+      isEditTriggerd: false
 
     };
+
+    this._options = [
+      { key: '1', text: 'Behandlas' },
+      { key: '2', text: 'Beviljad' },
+      { key: '3', text: 'Avslagen' },
+    ];
 
     this._columns = [
         { key: '1', name: 'Notering', fieldName: 'Title', minWidth: 75, maxWidth: 75, isResizable: true },
@@ -34,21 +48,31 @@ export class ListColumns extends React.Component<IColumnProps, IListColumnsState
           onRender: (item: IListItems) => (<span>{ new Date(item.VacStartDate).toISOString().slice(0, 10) }</span>) },
         { key: '3', name: 'Semester Slut', fieldName: 'VacEndDate', minWidth: 75, maxWidth: 75, isResizable: true,
           onRender: (item: IListItems) => (<span>{ new Date(item.VacEndDate).toISOString().slice(0, 10) }</span>)},
-        { key: '4', name: 'Personal', fieldName: 'UserPerson', minWidth: 75, maxWidth: 75, isResizable: true,
+        { key: '4', name: 'Namn', fieldName: 'UserPerson', minWidth: 75, maxWidth: 75, isResizable: true,
           onRender: (item: IListItems) => (<span>{ item.UserPerson[0].Title }</span>) },
-        { key: '5', name: 'Ansöknings Status', fieldName: 'Status', minWidth: 110, maxWidth: 110, isResizable: true },
+        { key: '5', name: 'Ansöknings Status', fieldName: 'Status', minWidth: 110, maxWidth: 110, isResizable: true,
+          onRender: (item: IListItems)=> {if(this.props.isAdmin === true)
+                          {return(<Dropdown label="Ändra status" options={this._options} className="Status" onChanged={(e: IDropdownOption)=>this._onChangeStatus(e.text, item.Id)}/>)}
+                          else{return(item.Status)}}},
         { key: '6', name: 'Handläggare', fieldName: 'Officer', minWidth: 85, maxWidth: 85, isResizable: true,
           onRender: (item: IListItems) => (<span>{ item.Officer[0].Title }</span>) },
-        { key: '7', name: 'Ändra', minWidth: 75, maxWidth: 75, isResizable: true, onRender: ()=>this.changeButton(this.state.values.Id) },
+        { key: '7', name: 'Ändra', minWidth: 75, maxWidth: 75, isResizable: true,
+          onRender: ()=> {if(this.props.isAdmin === true){return null}else{return this.changeButton(this.state.values.Id)}} },
       ];
     this._listName = "SemesterApp";  
   }
   public componentWillMount(){
     this.getUser(this.state.values.Id);
+    this.setUserType(this.props.isAdmin);
+
+  }
+
+  public componentDidMount(){
   }
 
   public render() {
     const { sortedItems } = this.state;
+    console.log('is edit triggered??',this.state.isEditTriggerd)
     return (
        <div>
       <DetailsList
@@ -64,24 +88,67 @@ export class ListColumns extends React.Component<IColumnProps, IListColumnsState
         ariaLabelForSelectAllCheckbox="Toggle selection for all items"
         checkButtonAriaLabel="Row checkbox"
       />
-      <PrimaryButton text="Visa Planerade Semester" onClick={()=>this.getListItems(this.props.UserPersonId)} />
+      <button hidden={this.state.hideMember} onClick={()=>this.getListItems(this.props.UserPersonId)}>Visa Mina Planerade Semester</button>
+      <button hidden={this.state.hideAdmin}  onClick={()=>this.getOfficerListItems(this.props.UserPersonId)}>Visa Personal:s Planerade Semester</button>
+      {this.state.isEditTriggerd && <EditVac hideEdit={this.changeEditTriggerd}/>}
       </div> 
     );
   }
   
   private changeButton = (Id: number) => {
+    
     return(
-      <button onClick={()=>alert(Id)}>Ändra</button>
+      <button onClick={ ()=> this.setState({isEditTriggerd: !this.state.isEditTriggerd})}>Ändra</button>
     )
   }
-  private getListItems = (userId?: number, officerId?: any) => {
+  private changeEditTriggerd = () => {
+    this.setState({isEditTriggerd: false})
+  }
+
+  private setUserType = (type: boolean) => {
+    console.log('isAdmin??', this.props.isAdmin, this.state.hideAdmin, this.state.hideMember)
+    if(type === true)
+    {
+      this.setState({hideMember: true, hideAdmin: false})
+    }
+    else
+    {
+      this.setState({hideMember: false, hideAdmin: true})
+    }
+  }
+
+  private _onChangeStatus = (newValue: any, id: number) => {
+    console.log('onChangeStatus', id, newValue)
+    this.setState( prevState => ({
+       values:{
+      ...prevState.values,
+        Status: newValue.text
+    }  
+    }));
+    sp.web.lists.getByTitle(this._listName).
+    items.getById(id).update({
+      Status: newValue
+    })
+    this.getOfficerListItems(this.props.UserPersonId);
+  }
+
+  private getListItems = (Id: number) => {
+    const currentDate = new Date().toISOString().slice(0, 10);
+    console.log('currentDate', currentDate)
     sp.web.lists.getByTitle(this._listName).items
     .select('*','Officer/Title','UserPerson/Title').expand('Officer', 'UserPerson')
-    .filter(`UserPerson eq ${userId}`)
+    .filter(`UserPerson eq ${Id} and VacStartDate qt ${currentDate}`)
     .get().then((res: IListItems[]) => { console.log('list Items', res, 'this props listcolumn', this.props.UserPersonTitle)
         this.setState(({sortedItems: res})
     )})}
-
+    
+  private getOfficerListItems = (Id?: number) => {
+    sp.web.lists.getByTitle(this._listName).items
+    .select('*','Officer/Title','UserPerson/Title').expand('Officer', 'UserPerson')
+    .filter(`Officer eq ${Id}`)
+    .get().then((res: IListItems[]) => { console.log('list Items', res, 'this props listcolumn', this.props.UserPersonTitle)
+          this.setState(({sortedItems: res})
+    )})}
     // `('${10}',UserPersonId) or substringof('${encodeURIComponent(officerId)}',OfficerId)`
 
   private getUser = (Id: number) => {

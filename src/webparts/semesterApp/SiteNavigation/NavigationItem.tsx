@@ -9,13 +9,13 @@ export interface NavigationItemProps {
 }
 
 const navigationItem = (props:NavigationItemProps) => (
-    <li className={styles.NavigationItem}>
+    <p className={styles.NavigationItem}>
         <NavLink 
             to={props.url}
             exact={props.exact}
             >{props.children}</NavLink>
         
-    </li> 
+    </p> 
 );
 
 export default navigationItem;

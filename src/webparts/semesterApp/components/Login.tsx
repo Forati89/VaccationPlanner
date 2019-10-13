@@ -6,6 +6,7 @@ import{ListColumns} from './ListColumns'
 
 export interface ILoginProps {
     users: SiteUserProps[];
+    isAdmin: boolean;
 }
 
 
@@ -39,7 +40,7 @@ export default class Login extends React.PureComponent<ILoginProps> {
             <p>{Id}</p>
             <p>{Email}</p>
             <p>{IsSiteAdmin.toString()}</p>
-            <ListColumns UserPersonTitle={Title} UserPersonId={Id}/>
+            <ListColumns isAdmin={this.props.isAdmin} UserPersonTitle={Title} UserPersonId={Id}/>
         </div>
     );
   }

@@ -7,6 +7,8 @@ import { ISemesterAppProps } from './ISemesterAppProps';
 export interface IVacPlannerProps {
   context: WebPartContext;
   userPersonID: number;
+  isAdmin: boolean;
+  userEmail: string;
 
 }
 export interface IVacPlannerState {  
@@ -28,7 +30,13 @@ export default class VaccationPlaner extends React.Component<ISemesterAppProps, 
   public render(): React.ReactElement<IVacPlannerProps> {
     return (
         <div>
-            <AddVac context={this.props.context} peoplePicker={this._getPeoplePickerItems} UserPersonID={this.props.userPersonID}/>
+            <AddVac
+             isAdmin={this.props.isAdmin}
+             userEmail={this.props.userEmail}
+             context={this.props.context}
+             peoplePicker={this._getPeoplePickerItems}
+             UserPersonID={this.props.userPersonID}
+            />
         </div>
     );
   }

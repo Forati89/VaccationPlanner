@@ -16,6 +16,8 @@ export interface IVacProps {
     context: any;
     peoplePicker: any;
     UserPersonID: number;
+    isAdmin: boolean;
+    userEmail: string;
 }
 
 const DayPickerStrings: IDatePickerStrings = {
@@ -45,7 +47,7 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
     super(props);
 
     this.state = {
-      values: {Id: 1, Title: '', VacStartDate: null, VacEndDate: null, UserPerson: '', Status: '', Officer: ''},
+      values: {Id: 1, Title: '', VacStartDate: null, VacEndDate: null, UserPerson: '', Status: '', Officer: null},
       userPerson: [],
       firstDayOfWeek: DayOfWeek.Monday
 
@@ -62,7 +64,7 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
     return (
        <div>
         <Stack horizontal tokens={{ childrenGap: 20 }} styles={{ root: { width: 700 } }}>
-            <TextField label="Notering:" underlined />
+            <TextField label="Notering:" underlined onChange={this._onChangeTitle}/>
             <DatePicker
             firstDayOfWeek={this.state.firstDayOfWeek}
             strings={DayPickerStrings}
@@ -71,6 +73,12 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
             showMonthPickerAsOverlay={true}
             placeholder="Välj start datum"
             ariaLabel="Select a date"
+            onSelectDate={newDate => {console.log('newStartDate', newDate); this.setState(prevState => ({
+              values:{
+            ...prevState.values,
+              VacStartDate: newDate
+              }  
+              }))}}
             />
             <DatePicker
             firstDayOfWeek={this.state.firstDayOfWeek}
@@ -80,6 +88,12 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
             showMonthPickerAsOverlay={true}
             placeholder="Välj slut datum"
             ariaLabel="Select a date"
+            onSelectDate={newDate => {console.log('newEndDate',newDate); this.setState(prevState => ({
+              values:{
+            ...prevState.values,
+              VacEndDate: newDate
+              }  
+              }))}}
             />
         </Stack>
         <br/>
@@ -93,30 +107,82 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
                 isRequired={true}    
                 disabled={false}    
                 ensureUser={true}    
-                selectedItems={this._getPeoplePickerItems}    
+                selectedItems={this._getPeoplePickerOfficer}    
                 showHiddenInUI={false}    
                 principalTypes={[PrincipalType.User]}    
                 resolveDelay={1000}
             /> 
             <br/>
-            <PrimaryButton>Lägg Till</PrimaryButton>
+            <PrimaryButton onClick={this.SubmitData}>Lägg Till</PrimaryButton>
         </div>
         <div>
-            <ListColumns UserPersonId={this.props.UserPersonID}/>
+            <ListColumns UserPersonId={this.props.UserPersonID} isAdmin={this.props.isAdmin}/>
         </div>
       </div> 
     );
   }
 
-  private _getPeoplePickerItems = (items: any) => {  
-    console.log('Items:', items);  
+
+  private _getPeoplePickerOfficer = (items: any) => {
+
+    const process = () =>{
+      if(items.length === 0)
+      {
+        this.setOfficerId(10);
+
+      }  
+      else
+      {
+        this.setOfficerId(items[0].id)
+      }
+    }
+    try{
+      process();
+      console.log('addvac admin ID', this.state.values.Title, this.state.values.VacStartDate, this.state.values.VacEndDate)
+
+    }catch(error){
+      alert(error);
+    }
+    return process;
+}
+
+  private setOfficerId = (value: any) => {
+    this.setState( prevState => ({
+      values:{
+    ...prevState.values,
+      Officer: value
+  }  
+  }));
+
+  }
+  private _onChangeTitle = (ev: React.FormEvent<HTMLInputElement>, newValue?: any) => {
+        
+    this.setState( prevState => ({
+       values:{
+      ...prevState.values,
+        Title: newValue
+    }  
+    }));
   }
 
-//   private getListItems = () => {
-//     sp.web.lists.getByTitle(this._listName).items
-//     .select('*','Officer/Title','UserPerson/Title').expand('Officer', 'UserPerson').get().then((res: IListItems[]) => { console.log('list Items', res, 'this props listcolumn', this.props.UserPersonTitle)
-//         this.setState(({sortedItems: res})
-//     )})}
+  private SubmitData = ()=>{
 
-
+    if(this.state.values.Officer === null || this.state.values.VacEndDate === null || this.state.values.VacStartDate === null)
+    {return alert("inorder to submit fill all fields")}
+    else
+    {
+      return(
+      sp.web.lists.getByTitle(this._listName).items.add({
+      Title: this.state.values.Title,
+      VacStartDate: this.state.values.VacStartDate,
+      VacEndDate: this.state.values.VacEndDate,
+      UserPersonId:{
+        results: [this.props.UserPersonID]
+      },
+      OfficerId:{
+        results: [this.state.values.Officer]
+      },
+      Status: 'Skapad',
+    })
+    )}}
 }

@@ -21,7 +21,7 @@ export default class SemesterApp extends React.Component<ISemesterAppProps, ISem
     super(props);
     this.state = {
       listItems: [],
-      userItems: [{Id: null, Title: '', IsSiteAdmin: false, Email: ''}],
+      userItems: [{Id: null, Title: '', IsSiteAdmin: true, Email: ''}],
       userPerson: []
     };
 
@@ -60,8 +60,15 @@ export default class SemesterApp extends React.Component<ISemesterAppProps, ISem
         <Chrome>
           <Switch>
             {<Route path="/vaccation-planer" render={()=>this.state.userItems[0].IsSiteAdmin === false &&
-              <VaccationPlanner  context={this.props.context} userPersonID={this.state.userItems[0].Id} />}  /> }
-            <Route path="/" render={()=> <Login users={this.state.userItems}/>}  />
+              <VaccationPlanner
+                isAdmin={this.state.userItems[0].IsSiteAdmin}
+                context={this.props.context}
+                userPersonID={this.state.userItems[0].Id}
+                userEmail={this.state.userItems[0].Email}
+              />}
+                
+            />}
+            <Route path="/" render={()=> <Login isAdmin={this.state.userItems[0].IsSiteAdmin} users={this.state.userItems}/>}  />
             <Route render={() => <h1>Page Not found</h1>} />
           </Switch>
         </Chrome>
