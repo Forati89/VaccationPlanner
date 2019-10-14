@@ -1,7 +1,7 @@
 import * as React from 'react';
 import IListItems from './IListItems';
 import { sp } from '@pnp/sp';
-import { PrimaryButton, Stack, TextField, DayOfWeek, IDatePickerStrings, DatePicker } from 'office-ui-fabric-react';
+import { PrimaryButton, Stack, TextField, DayOfWeek, IDatePickerStrings, DatePicker, Label } from 'office-ui-fabric-react';
 import {IColumnProps} from './IColumnProps'
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
 import {ListColumns} from './ListColumns'
@@ -10,6 +10,8 @@ export interface IVacState {
   values: IListItems;
   userPerson: any;
   firstDayOfWeek?: DayOfWeek;
+  DPStartMsg: string;
+  DPEndMsg: string;
 }
 
 export interface IVacProps {
@@ -51,7 +53,9 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
     this.state = {
       values: {Id: 1, Title: '', VacStartDate: null, VacEndDate: null, UserPerson: '', Status: '', Officer: null},
       userPerson: [],
-      firstDayOfWeek: DayOfWeek.Monday
+      firstDayOfWeek: DayOfWeek.Monday,
+      DPStartMsg: '',
+      DPEndMsg: ''
 
     };
 
@@ -71,32 +75,41 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
             firstDayOfWeek={this.state.firstDayOfWeek}
             strings={DayPickerStrings}
             showWeekNumbers={true}
+            isRequired={true}
             firstWeekOfYear={1}
             showMonthPickerAsOverlay={true}
             placeholder="Välj start datum"
             ariaLabel="Select a date"
-            onSelectDate={newDate => {console.log('newStartDate', newDate); this.setState(prevState => ({
+            id="dateStart"
+            onSelectDate={newDate => {console.log('newStartDate', newDate);  this.setState(prevState => ({
+              DPStartMsg: newDate.toLocaleDateString().slice(0, 10),
               values:{
             ...prevState.values,
-              VacStartDate: newDate
+              VacStartDate: newDate.toLocaleDateString()
               }  
               }))}}
             />
+            <div><Label>Börjar: {this.state.DPStartMsg}</Label></div>
             <DatePicker
             firstDayOfWeek={this.state.firstDayOfWeek}
             strings={DayPickerStrings}
+            isRequired={true}
             showWeekNumbers={true}
             firstWeekOfYear={1}
             showMonthPickerAsOverlay={true}
             placeholder="Välj slut datum"
             ariaLabel="Select a date"
-            onSelectDate={newDate => {console.log('newEndDate',newDate); this.setState(prevState => ({
+            id="dateEnd"
+            onSelectDate={newDate => {console.log('newEndDate',newDate);  this.setState(prevState => ({
+              DPEndMsg: newDate.toLocaleDateString().slice(0, 10),
               values:{
             ...prevState.values,
-              VacEndDate: newDate
+              VacEndDate: newDate.toLocaleDateString()
               }  
               }))}}
             />
+            <div><Label>Slutar: {this.state.DPEndMsg}</Label></div>
+            
         </Stack>
         <br/>
         <div>
