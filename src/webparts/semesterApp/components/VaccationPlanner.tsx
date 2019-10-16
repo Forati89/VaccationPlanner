@@ -21,10 +21,10 @@ export default class VaccationPlaner extends React.Component<ISemesterAppProps, 
   
   constructor(props)
   {
-    super(props)
+    super(props);
     this.state={
       addUsers: []
-    }
+    };
     this._listName = "SemesterApp";  
   }
   public render(): React.ReactElement<IVacPlannerProps> {
@@ -43,7 +43,7 @@ export default class VaccationPlaner extends React.Component<ISemesterAppProps, 
 
   public componentWillMount()
   {
-    console.log('VaccationPlaner', this.props.userPersonID)
+    console.log('VaccationPlaner', this.props.userPersonID);
   }
 
   private addSelectedUsers = (): void => {    

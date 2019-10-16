@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { SiteUserProps } from '@pnp/sp/src/siteusers';
-import{ListColumns} from './ListColumns'
+import{ListColumns} from './ListColumns';
 
 
 
@@ -32,14 +32,19 @@ export default class Login extends React.PureComponent<ILoginProps> {
   
 
   public render(): React.ReactElement<ILoginProps> {
-    console.log('props render', this.props.users[0])
-    const {Id, Email, IsSiteAdmin, Title} = this.props.users[0]
+    console.log('props render', this.props.users[0]);
+    const {Id, Email, IsSiteAdmin, Title} = this.props.users[0];
+    let admin = ()=> {
+      if(IsSiteAdmin === true)
+      {return <p style={{fontWeight: 'bold'}}>Ja du är Admin!</p>;}
+      else return(<p style={{fontWeight: 'bold'}}>Nej, det har du inte!</p>);
+    };
     return (
         <div className="loginMap">
             <h2>Välkommen {Title}</h2>
-            <p>{Id}</p>
-            <p>{Email}</p>
-            <p>{IsSiteAdmin.toString()}</p>
+            <p>Ditt Id nummer är: {<p style={{fontWeight: 'bold'}}>{Id}</p>}</p>
+            <p>Ditt mejl adress: {<p style={{fontWeight: 'bold'}}>{Email}</p>}</p>
+            <p>Har du admin rättigheter? {admin()}</p>
             <ListColumns isAdmin={this.props.isAdmin} UserPersonTitle={Title} UserPersonId={Id}/>
         </div>
     );

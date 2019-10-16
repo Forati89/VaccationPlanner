@@ -1,9 +1,10 @@
 import * as React from 'react';
 import MenuBar from '../SiteNavigation/MenuBar';
+import style from './Styles/Chrome.module.scss';
 
 const chrome = (props:any) => (
-    <div>
-        <div>Here is where the top nav will be</div>
+    <div className={style.main}>
+        <h1>Semester Planer App, Välkommen</h1>
         <MenuBar />
         <main>
             {props.children}

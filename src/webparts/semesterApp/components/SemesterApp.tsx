@@ -39,23 +39,24 @@ export default class SemesterApp extends React.Component<ISemesterAppProps, ISem
        console.log('currentUser', r);
        this.setState({
          userItems: [r]
-        })
-      })  
+        });
+      });  
   }
 
 
   public render(): React.ReactElement<ISemesterAppProps> {
     const admin = ()=> {
-      console.log('is addmin true?', this.state.userItems[0].IsSiteAdmin)
+      console.log('is addmin true?', this.state.userItems[0].IsSiteAdmin);
       if(this.state.userItems[0].IsSiteAdmin === false)
       {
-        return(<Route path="/vaccation-planer" component={VaccationPlanner}  />)
+        return(<Route path="/vaccation-planer" component={VaccationPlanner}  />);
       }
       else return null;
-    }
+    };
 
 
     return (
+      <div className={styles.container}>
       <HashRouter>
         <Chrome>
           <Switch>
@@ -73,6 +74,7 @@ export default class SemesterApp extends React.Component<ISemesterAppProps, ISem
           </Switch>
         </Chrome>
       </HashRouter>
+      </div>
     );
   }
 }

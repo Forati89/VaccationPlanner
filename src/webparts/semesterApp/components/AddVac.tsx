@@ -1,10 +1,11 @@
 import * as React from 'react';
 import IListItems from './IListItems';
-import { sp } from '@pnp/sp';
+import { sp, Items } from '@pnp/sp';
 import { PrimaryButton, Stack, TextField, DayOfWeek, IDatePickerStrings, DatePicker, Label } from 'office-ui-fabric-react';
-import {IColumnProps} from './IColumnProps'
+import {IColumnProps} from './IColumnProps';
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
-import {ListColumns} from './ListColumns'
+import {ListColumns} from './ListColumns';
+import style from './Styles/AddVac.module.scss';
 
 export interface IVacState {
   values: IListItems;
@@ -12,6 +13,7 @@ export interface IVacState {
   firstDayOfWeek?: DayOfWeek;
   DPStartMsg: string;
   DPEndMsg: string;
+  validationMsg: string;
 }
 
 export interface IVacProps {
@@ -55,7 +57,8 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
       userPerson: [],
       firstDayOfWeek: DayOfWeek.Monday,
       DPStartMsg: '',
-      DPEndMsg: ''
+      DPEndMsg: '',
+      validationMsg: ''
 
     };
 
@@ -68,8 +71,9 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
     const { } = this.state;
 
     return (
-       <div>
-        <Stack horizontal tokens={{ childrenGap: 20 }} styles={{ root: { width: 700 } }}>
+       <div className={style.body}>
+         <h3>LÄGG TILL NY SEMESTER</h3>
+        <Stack horizontal tokens={{ childrenGap: 20 }} styles={{ root: { maxWidth: 700 } }}>
             <TextField label="Notering:" underlined onChange={this._onChangeTitle}/>
             <DatePicker
             firstDayOfWeek={this.state.firstDayOfWeek}
@@ -81,13 +85,14 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
             placeholder="Välj start datum"
             ariaLabel="Select a date"
             id="dateStart"
-            onSelectDate={newDate => {console.log('newStartDate', newDate);  this.setState(prevState => ({
+            onSelectDate={newDate => {console.log('newStartDate', newDate);
+             if(this.compareDates(newDate, this.state.values.VacEndDate) === true) return (newDate.setHours(0, -newDate.getTimezoneOffset(), 0, 0) , this.setState(prevState => ({
               DPStartMsg: newDate.toLocaleDateString().slice(0, 10),
               values:{
             ...prevState.values,
-              VacStartDate: newDate.toLocaleDateString()
+              VacStartDate: newDate.toISOString()
               }  
-              }))}}
+              })));}}
             />
             <div><Label>Börjar: {this.state.DPStartMsg}</Label></div>
             <DatePicker
@@ -100,19 +105,21 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
             placeholder="Välj slut datum"
             ariaLabel="Select a date"
             id="dateEnd"
-            onSelectDate={newDate => {console.log('newEndDate',newDate);  this.setState(prevState => ({
+            onSelectDate={newDate => {console.log('newEndDate',newDate);
+              if(this.compareDates2(this.state.values.VacStartDate,newDate) === true) return
+              (newDate.setHours(0, -newDate.getTimezoneOffset(), 0, 0) , this.setState(prevState => ({
               DPEndMsg: newDate.toLocaleDateString().slice(0, 10),
               values:{
             ...prevState.values,
-              VacEndDate: newDate.toLocaleDateString()
+              VacEndDate: newDate.toISOString()
               }  
-              }))}}
+              })));}}
             />
             <div><Label>Slutar: {this.state.DPEndMsg}</Label></div>
             
         </Stack>
         <br/>
-        <div>
+        <div style={{maxWidth: '40%', textAlign: 'center', margin: '0 auto'}}>
             <PeoplePicker    
                 context={this.props.context}    
                 titleText="Välj din handläggare"    
@@ -128,13 +135,38 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
                 resolveDelay={1000}
             /> 
             <br/>
-            <PrimaryButton onClick={this.SubmitData}>Lägg Till</PrimaryButton>
+            <PrimaryButton onClick={this.SubmitData}>Lägg Till Semester</PrimaryButton>
+            <Label style={{color: 'blue'}}>{this.state.validationMsg}</Label>
         </div>
         <div>
             <ListColumns UserPersonId={this.props.UserPersonID} isAdmin={this.props.isAdmin}/>
         </div>
       </div> 
     );
+  }
+  private compareDates = (date1: any, date2: any): boolean=> {
+    if(Date.parse(date1) > Date.parse(date2))
+    { 
+      this.setState({validationMsg: 'Kolla datum'});
+      return false;
+     }
+    else
+    {
+      this.setState({validationMsg: 'Datum OK'});
+      return true;
+    }
+  }
+  private compareDates2 = (date1: any, date2: any): boolean=> {
+    if(Date.parse(date1) < Date.parse(date2))
+    { 
+      this.setState({validationMsg: 'Datum OK'});
+      return false;
+     }
+    else
+    {
+      this.setState({validationMsg: 'Kolla datum'});
+      return true;
+    }
   }
 
 
@@ -148,12 +180,12 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
       }  
       else
       {
-        this.setOfficerId(items[0].id)
+        this.setOfficerId(items[0].id);
       }
-    }
+    };
     try{
       process();
-      console.log('addvac admin ID', this.state.values.Title, this.state.values.VacStartDate, this.state.values.VacEndDate)
+      console.log('addvac admin ID', this.state.values.Title, this.state.values.VacStartDate, this.state.values.VacEndDate);
 
     }catch(error){
       alert(error);
@@ -181,23 +213,57 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
   }
 
   private SubmitData = ()=>{
-
     if(this.state.values.Officer === null || this.state.values.VacEndDate === null || this.state.values.VacStartDate === null)
-    {return alert("inorder to submit fill all fields")}
+    {return alert("inorder to submit fill all fields");}
     else
     {
+      let startDate = this.state.values.VacStartDate;
       return(
-      sp.web.lists.getByTitle(this._listName).items.add({
-      Title: this.state.values.Title,
-      VacStartDate: this.state.values.VacStartDate,
-      VacEndDate: this.state.values.VacEndDate,
-      UserPersonId:{
-        results: [this.props.UserPersonID]
-      },
-      OfficerId:{
-        results: [this.state.values.Officer]
-      },
-      Status: 'Skapad',
-    })
-    )}}
+      sp.web.lists.getByTitle(this._listName).items
+      .select("VacStartDate", "VacEndDate")
+      .filter(`UserPerson eq ${this.props.UserPersonID} and VacStartDate ge datetime'${this.state.values.VacStartDate}'
+       and VacEndDate ge datetime'${this.state.values.VacEndDate}'`).get()
+      .then((result)=>{
+        if(result.length > 0)
+        {
+        return(alert('Ops! du har redan planerad semester för denna period.'));
+        }
+        else {
+           sp.web.lists.getByTitle(this._listName).items.add({
+            Title: this.state.values.Title,
+            VacStartDate: this.state.values.VacStartDate,
+            VacEndDate: this.state.values.VacEndDate,
+            UserPersonId:{
+              results: [this.props.UserPersonID]
+            },
+            OfficerId:{
+              results: [this.state.values.Officer]
+            },
+            Status: 'Skapad',
+          }
+          );
+          alert('Semester inlagd');
+        }
+      })
+        // if(result[0].VacStartDate !== this.state.values.VacStartDate)
+        // {
+        //   sp.web.lists.getByTitle(this._listName).items.add({
+        //     Title: this.state.values.Title,
+        //     VacStartDate: this.state.values.VacStartDate,
+        //     VacEndDate: this.state.values.VacEndDate,
+        //     UserPersonId:{
+        //       results: [this.props.UserPersonID]
+        //     },
+        //     OfficerId:{
+        //       results: [this.state.values.Officer]
+        //     },
+        //     Status: 'Skapad',
+        //   })
+        // }
+        // else return (alert('this date already exsists!'))
+      );}}
+
+    //   )
+
+    // )}}
 }

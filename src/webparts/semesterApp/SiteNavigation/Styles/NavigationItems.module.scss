@@ -1,5 +1,17 @@
 .NavigationItems{
-    background-color: white;
-    float: right;
-
+    background-color: hotpink;
+    font-style: italic;
+    font-weight: bold;
+    a:link {
+        color: white;
+        text-decoration: none;
+      }
+      a:visited {
+        color: white;
+      }
+      
+      a:hover {
+        color: black;
+      }
+    
 }

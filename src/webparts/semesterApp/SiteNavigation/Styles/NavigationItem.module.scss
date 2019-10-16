@@ -1,7 +1,10 @@
 .NavigationItem{
     margin: auto;
     padding: 10px;
-    float: right;
+    text-align: center;
+    display: inline;
+    margin: auto;
+    background-color: hotpink;
  .active{
   color: red;
  }
