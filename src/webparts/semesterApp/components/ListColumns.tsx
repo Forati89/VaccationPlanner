@@ -1,12 +1,8 @@
 import * as React from 'react';
-import { createListItems, IExampleItem } from '@uifabric/example-data';
-import { Link } from 'office-ui-fabric-react/lib/Link';
-import { Image, ImageFit } from 'office-ui-fabric-react/lib/Image';
 import { DetailsList, DetailsListLayoutMode, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
-import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import IListItems from './IListItems';
 import { sp } from '@pnp/sp';
-import { PrimaryButton, IDropdownOption, Dropdown, DatePicker, DayOfWeek, IDatePickerStrings } from 'office-ui-fabric-react';
+import { IDropdownOption, Dropdown, DatePicker, DayOfWeek, IDatePickerStrings } from 'office-ui-fabric-react';
 import {IColumnProps} from './IColumnProps';
 import {EditVac} from './EditVac';
 import style from './Styles/ListColumns.module.scss';
@@ -251,103 +247,6 @@ export class ListColumns extends React.Component<IColumnProps, IListColumnsState
      });
    }
 
-
-//   private readUserItems = () => {
-//     let data = Array.prototype.concat(this.state.getEMail);
-//       data.map(res => { console.log(res);
-//        this.setState({EMail: [res][0].Author.EMail, userTitle: [res][0].Author.Title});
-//     });
-//   }
-
-//   private getUser = (Id: number) => {
-//      sp.web.lists.getByTitle("MarketPlaceList").items
-//     .getById(Id)
-//     .select("Author", "Author/EMail", "Author/ID", "Author/Title").expand("Author").get().then(items => {
-//       this.setState({getEMail: items});
-//       });
-//     }
-
-
-
-//   private addValues = (): void => {
-//     sp.web.lists.getByTitle('SemesterApp').items.add(
-//     this.state.values
-//     );
-//   }
-
-//   private _onColumnClick = (event: React.MouseEvent<HTMLElement>, column: IColumn): void => {
-//     const columns  = this._columns;
-//     let { sortedItems } = this.state;
-//     let isSortedDescending = column.isSortedDescending;
-
-//     // If we've sorted this column, flip it.
-//     if (column.isSorted) {
-//       isSortedDescending = !isSortedDescending;
-//     }
-
-//     // Sort the items.
-//     sortedItems = _copyAndSort(sortedItems, column.fieldName!, isSortedDescending);
-
-//     // Reset the items and columns to match the state.
-//     // this.setState({
-//     //   sortedItems: sortedItems,
-//     //   columns: columns.map(col => {
-//     //     col.isSorted = col.key === column.key;
-
-//     //     if (col.isSorted) {
-//     //       col.isSortedDescending = isSortedDescending;
-//     //     }
-
-//     //     return col;
-//     //   })
-//     // });
-//   };
-
-//   private _onColumnHeaderContextMenu(column: IColumn | undefined, ev: React.MouseEvent<HTMLElement> | undefined): void {
-//     console.log(`column ${column!.key} contextmenu opened.`);
-//   }
-
-//   private _onItemInvoked(item: any, index: number | undefined): void {
-//     alert(`Item ${item.name} at index ${index} has been invoked.`);
-//   }
-// }
-
-// // function _buildColumns(items: IColumn[]): IColumn[] {
-// //   const columns = buildColumns(items);
-
-// //   const thumbnailColumn = columns.filter(column => column.name === 'thumbnail')[0];
-
-// //   // Special case one column's definition.
-// //   thumbnailColumn.name = '';
-// //   thumbnailColumn.maxWidth = 50;
-
-// //   return columns;
-// // }
-
-// function _renderItemColumn(item: IExampleItem, index: number, column: IColumn) {
-//   const fieldContent = item[column.fieldName as keyof IExampleItem] as string;
-
-//   switch (column.key) {
-//     case 'thumbnail':
-//       return <Image src={fieldContent} width={50} height={50} imageFit={ImageFit.cover} />;
-
-//     case 'name':
-//       return <Link href="#">{fieldContent}</Link>;
-
-//     case 'color':
-//       return (
-//         <span data-selection-disabled={true} className={mergeStyles({ color: fieldContent, height: '100%', display: 'block' })}>
-//           {fieldContent}
-//         </span>
-//       );
-
-//     default:
-//       return <span>{fieldContent}</span>;
-//   }
 }
 
-// function _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
-//   const key = columnKey as keyof T;
-//   return items.slice(0).sort((a: T, b: T) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1));
 
-// }

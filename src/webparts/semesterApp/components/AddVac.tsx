@@ -245,25 +245,7 @@ export class AddVac extends React.Component<IVacProps, IVacState> {
           alert('Semester inlagd');
         }
       })
-        // if(result[0].VacStartDate !== this.state.values.VacStartDate)
-        // {
-        //   sp.web.lists.getByTitle(this._listName).items.add({
-        //     Title: this.state.values.Title,
-        //     VacStartDate: this.state.values.VacStartDate,
-        //     VacEndDate: this.state.values.VacEndDate,
-        //     UserPersonId:{
-        //       results: [this.props.UserPersonID]
-        //     },
-        //     OfficerId:{
-        //       results: [this.state.values.Officer]
-        //     },
-        //     Status: 'Skapad',
-        //   })
-        // }
-        // else return (alert('this date already exsists!'))
+
       );}}
 
-    //   )
-
-    // )}}
 }

@@ -4,7 +4,6 @@ import { DefaultButton, Stack, Label, DatePicker, TextField, IDatePickerStrings,
 import IListItems from './IListItems';
 import { sp } from '@pnp/sp';
 import style from './Styles/EditVac.module.scss';
-import styles from './Styles/EditVac.module.scss';
 
 export interface IEditVacState{
     closeDialog: boolean;
